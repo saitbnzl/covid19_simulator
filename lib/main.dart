@@ -11,6 +11,7 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
+    SystemChrome.setEnabledSystemUIOverlays([]);
     return MaterialApp(
       title: 'Coronavirus Simulator',
       theme: ThemeData(

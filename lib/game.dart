@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:covid19simulator/panel.dart';
 import 'package:covid19simulator/person.dart';
 import 'package:covid19simulator/person_data.dart';
 import 'package:flutter/scheduler.dart';
@@ -19,6 +20,7 @@ class _GameState extends State<Game> {
   bool isStarted = false;
   Size screenSize;
   Random random = Random();
+  int infectedCount = INITIAL_NUM_OF_INFECTED, sickCount = 0;
 
   @override
   void initState() {
@@ -35,7 +37,18 @@ class _GameState extends State<Game> {
   Widget build(BuildContext context) {
     if (!isStarted) return Container();
     return Stack(
-      children: _buildPersons(personDataList),
+      children: [
+        ..._buildPersons(personDataList),
+        Align(
+          alignment: Alignment.topLeft,
+          child: Panel(
+            total: NUM_OF_PERSONS,
+            infected: infectedCount,
+            sick: sickCount,
+            noninfected: NUM_OF_PERSONS-infectedCount-sickCount,
+          ),
+        ),
+      ],
     );
   }
 
@@ -55,7 +68,9 @@ class _GameState extends State<Game> {
     return List<PersonData>.generate(NUM_OF_PERSONS, (index) {
       PersonData person = PersonData(
         id: index.toString(),
-        personStatus: index<INITIAL_NUM_OF_INFECTED?PersonStatus.Infected:PersonStatus.NonInfected,
+        personStatus: index < INITIAL_NUM_OF_INFECTED
+            ? PersonStatus.Infected
+            : PersonStatus.NonInfected,
         pos: Vector2.random()
           ..multiply(Vector2(screenSize.width, screenSize.height)),
       );
@@ -74,12 +89,15 @@ class _GameState extends State<Game> {
   update() {
     for (int i = 0; i < personDataList.length; i++) {
       PersonData personData = personDataList[i];
-      if(personData.personStatus==PersonStatus.Infected){
+      if (personData.personStatus == PersonStatus.Infected) {
         personDataList[i] = personData.copyWith(
-            elapsedTimeSinceInfection: personData.elapsedTimeSinceInfection+50);
-        if(personData.elapsedTimeSinceInfection>10000){
-          personDataList[i] = personData.copyWith(
-              personStatus: PersonStatus.Sick);
+            elapsedTimeSinceInfection:
+                personData.elapsedTimeSinceInfection + 50);
+        if (personData.elapsedTimeSinceInfection > 10000) {
+          personDataList[i] =
+              personData.copyWith(personStatus: PersonStatus.Sick);
+          sickCount++;
+          infectedCount--;
         }
       }
       personDataList[i] = personDataList[i].copyWith(
@@ -103,10 +121,19 @@ class _GameState extends State<Game> {
 
         if (distance < 10) {
           if (p1.personStatus == PersonStatus.Infected ||
-              p2.personStatus == PersonStatus.Infected||p1.personStatus == PersonStatus.Sick ||
+              p2.personStatus == PersonStatus.Infected ||
+              p1.personStatus == PersonStatus.Sick ||
               p2.personStatus == PersonStatus.Sick) {
-            personDataList[i] = p1.copyWith(personStatus: PersonStatus.Infected);
-            personDataList[j] = p2.copyWith(personStatus: PersonStatus.Infected);
+            if (p1.personStatus == PersonStatus.NonInfected) {
+              personDataList[i] =
+                  p1.copyWith(personStatus: PersonStatus.Infected);
+              infectedCount++;
+            }
+            if (p2.personStatus == PersonStatus.NonInfected) {
+              personDataList[j] =
+                  p2.copyWith(personStatus: PersonStatus.Infected);
+              infectedCount++;
+            }
           }
         }
       }
