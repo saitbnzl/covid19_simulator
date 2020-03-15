@@ -21,9 +21,9 @@ class Panel extends StatelessWidget {
           children: <Widget>[
             Text("Total: $total",style: textStyle.copyWith(color: Colors.black)),
             Text("Infected: $infected",style: textStyle.copyWith(color: Colors.yellow),),
+            Text("Non-infected: $noninfected",style: textStyle.copyWith(color: Colors.black54)),
             Text("Sick: $sick",style: textStyle.copyWith(color: Colors.red),),
            // Text("Recovered: $recovered",style: textStyle.copyWith(color: Colors.green)),
-            Text("Non-infected: $noninfected",style: textStyle.copyWith(color: Colors.black54)),
           ],
         ),
       ),

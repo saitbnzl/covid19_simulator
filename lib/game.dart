@@ -55,7 +55,7 @@ class _GameState extends State<Game> {
                 total: NUM_OF_PERSONS,
                 infected: infectedCount,
                 sick: sickCount,
-                noninfected: NUM_OF_PERSONS-infectedCount-sickCount,
+                noninfected: NUM_OF_PERSONS-infectedCount,
               ),
             ),
           ],
@@ -109,7 +109,6 @@ class _GameState extends State<Game> {
           personDataList[i] =
               personData.copyWith(personStatus: PersonStatus.Sick);
           sickCount++;
-          infectedCount--;
         }
       }
       personDataList[i] = personDataList[i].copyWith(
