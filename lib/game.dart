@@ -54,7 +54,7 @@ class _GameState extends State<Game> {
       PersonData person = PersonData(
         id: index.toString(),
         personStatus:
-            index == 0 ? PersonStatus.Infected : PersonStatus.NonInfected,
+            index%2 == 0 ? PersonStatus.Infected : PersonStatus.NonInfected,
         pos: Vector2.random()
           ..multiply(Vector2(screenSize.width, screenSize.height)),
       );
@@ -66,6 +66,7 @@ class _GameState extends State<Game> {
     update();
     await Future.delayed(Duration(milliseconds: 50));
     setState(() {});
+    collissionDetector();
     gameLoop();
   }
 
@@ -77,6 +78,27 @@ class _GameState extends State<Game> {
                   random.nextDouble() * (random.nextBool() ? -5 : 5),
               personDataList[i].pos.y +
                   random.nextDouble() * (random.nextBool() ? -5 : 5)));
+    }
+  }
+
+  collissionDetector() {
+    for (int i = 0; i < personDataList.length; i++) {
+      for (int j = 0; j < personDataList.length - 1; j++) {
+        PersonData p1 = personDataList[i];
+        PersonData p2 = personDataList[j];
+
+        var dx = p1.pos.x - p2.pos.x;
+        var dy = p1.pos.y - p2.pos.y;
+        var distance = sqrt(dx * dx + dy * dy);
+
+        if (distance < 10) {
+          if (p1.personStatus == PersonStatus.Infected ||
+              p2.personStatus == PersonStatus.Infected) {
+            personDataList[i] = p1.copyWith(personStatus: PersonStatus.Infected);
+            personDataList[j] = p2.copyWith(personStatus: PersonStatus.Infected);
+          }
+        }
+      }
     }
   }
 }
