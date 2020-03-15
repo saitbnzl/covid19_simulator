@@ -13,6 +13,8 @@ class Game extends StatefulWidget {
 
 class _GameState extends State<Game> {
   static const int NUM_OF_PERSONS = 100;
+  static const int INITIAL_NUM_OF_INFECTED = 10;
+
   List<PersonData> personDataList;
   bool isStarted = false;
   Size screenSize;
@@ -53,8 +55,7 @@ class _GameState extends State<Game> {
     return List<PersonData>.generate(NUM_OF_PERSONS, (index) {
       PersonData person = PersonData(
         id: index.toString(),
-        personStatus:
-            index%2 == 0 ? PersonStatus.Infected : PersonStatus.NonInfected,
+        personStatus: index<INITIAL_NUM_OF_INFECTED?PersonStatus.Infected:PersonStatus.NonInfected,
         pos: Vector2.random()
           ..multiply(Vector2(screenSize.width, screenSize.height)),
       );
@@ -72,6 +73,15 @@ class _GameState extends State<Game> {
 
   update() {
     for (int i = 0; i < personDataList.length; i++) {
+      PersonData personData = personDataList[i];
+      if(personData.personStatus==PersonStatus.Infected){
+        personDataList[i] = personData.copyWith(
+            elapsedTimeSinceInfection: personData.elapsedTimeSinceInfection+50);
+        if(personData.elapsedTimeSinceInfection>10000){
+          personDataList[i] = personData.copyWith(
+              personStatus: PersonStatus.Sick);
+        }
+      }
       personDataList[i] = personDataList[i].copyWith(
           pos: Vector2(
               personDataList[i].pos.x +
@@ -93,7 +103,8 @@ class _GameState extends State<Game> {
 
         if (distance < 10) {
           if (p1.personStatus == PersonStatus.Infected ||
-              p2.personStatus == PersonStatus.Infected) {
+              p2.personStatus == PersonStatus.Infected||p1.personStatus == PersonStatus.Sick ||
+              p2.personStatus == PersonStatus.Sick) {
             personDataList[i] = p1.copyWith(personStatus: PersonStatus.Infected);
             personDataList[j] = p2.copyWith(personStatus: PersonStatus.Infected);
           }
