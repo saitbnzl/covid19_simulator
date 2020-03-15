@@ -6,6 +6,7 @@ import 'package:covid19simulator/person_data.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:vector_math/vector_math.dart';
+import 'package:flutter/material.dart' as material;
 
 class Game extends StatefulWidget {
   @override
@@ -13,12 +14,12 @@ class Game extends StatefulWidget {
 }
 
 class _GameState extends State<Game> {
-  static const int NUM_OF_PERSONS = 100;
+  static const int NUM_OF_PERSONS = 1000;
   static const int INITIAL_NUM_OF_INFECTED = 10;
 
   List<PersonData> personDataList;
   bool isStarted = false;
-  Size screenSize;
+  Size screenSize = Size(1280, 720);
   Random random = Random();
   int infectedCount = INITIAL_NUM_OF_INFECTED, sickCount = 0;
 
@@ -26,7 +27,6 @@ class _GameState extends State<Game> {
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       isStarted = true;
-      screenSize = MediaQuery.of(context).size;
       personDataList = _generatePersons(context);
       gameLoop();
     });
@@ -36,19 +36,31 @@ class _GameState extends State<Game> {
   @override
   Widget build(BuildContext context) {
     if (!isStarted) return Container();
-    return Stack(
-      children: [
-        ..._buildPersons(personDataList),
-        Align(
-          alignment: Alignment.topLeft,
-          child: Panel(
-            total: NUM_OF_PERSONS,
-            infected: infectedCount,
-            sick: sickCount,
-            noninfected: NUM_OF_PERSONS-infectedCount-sickCount,
-          ),
+    return Center(
+      child: Container(
+        width: screenSize.width,
+        height: screenSize.height,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: material.Colors.black,
+            width: 5
+          )
         ),
-      ],
+        child: Stack(
+          children: [
+            ..._buildPersons(personDataList),
+            Align(
+              alignment: Alignment.topLeft,
+              child: Panel(
+                total: NUM_OF_PERSONS,
+                infected: infectedCount,
+                sick: sickCount,
+                noninfected: NUM_OF_PERSONS-infectedCount-sickCount,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
